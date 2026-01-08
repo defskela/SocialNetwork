@@ -12,6 +12,7 @@ type Config struct {
 	Env        string `yaml:"env" env-default:"local"`
 	HTTPServer `yaml:"http_server"`
 	Postgres   `yaml:"postgres"`
+	JWT        `yaml:"jwt"`
 }
 
 type HTTPServer struct {
@@ -27,6 +28,11 @@ type Postgres struct {
 	Password string `yaml:"password" env:"POSTGRES_PASSWORD" env-required:"true"`
 	DBName   string `yaml:"db_name" env:"POSTGRES_DB" env-required:"true"`
 	SSLMode  string `yaml:"ssl_mode" env:"POSTGRES_SSL_MODE" env-default:"disable"`
+}
+
+type JWT struct {
+	PrivateKeyPath string `yaml:"private_key_path" env:"JWT_PRIVATE_KEY_PATH" env-required:"true"`
+	PublicKeyPath  string `yaml:"public_key_path" env:"JWT_PUBLIC_KEY_PATH" env-required:"true"`
 }
 
 func MustLoad() *Config {
