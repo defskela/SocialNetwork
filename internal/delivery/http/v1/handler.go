@@ -26,6 +26,16 @@ func (h *Handler) Init(api *chi.Mux) {
 	})
 }
 
+// @Summary Register a new user
+// @Description Create a new user account
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body service.SignUpInput true "Sign up input"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /auth/register [post]
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	var input service.SignUpInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -45,6 +55,16 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Sign in
+// @Description Authenticate user and return tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body service.SignInInput true "Sign in input"
+// @Success 200 {object} service.Tokens
+// @Failure 400 {string} string "Bad Request"
+// @Failure 500 {string} string "Internal Server Error"
+// @Router /auth/login [post]
 func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 	var input service.SignInInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {

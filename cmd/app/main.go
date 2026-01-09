@@ -15,6 +15,13 @@ import (
 	"social-network/pkg/client/postgresql"
 )
 
+// @title Social Network API
+// @version 1.0
+// @description REST API for Social Network application
+
+// @host localhost:8080
+// @BasePath /api/v1
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
