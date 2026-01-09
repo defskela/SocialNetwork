@@ -7,7 +7,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 
+	_ "social-network/docs"
 	"social-network/internal/config"
 	v1 "social-network/internal/delivery/http/v1"
 	"social-network/internal/service"
@@ -62,6 +64,10 @@ func (h *Handler) Init() *chi.Mux {
 			h1.Init(r.(*chi.Mux))
 		})
 	})
+
+	router.Get("/api/docs/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/api/docs/doc.json"),
+	))
 
 	return router
 }
