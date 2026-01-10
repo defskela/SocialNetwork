@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+
 	"github.com/defskela/SocialNetwork/internal/entity"
 	"github.com/defskela/SocialNetwork/internal/repository"
 	"github.com/defskela/SocialNetwork/pkg/client/postgresql"

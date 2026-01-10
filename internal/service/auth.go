@@ -29,7 +29,11 @@ type authService struct {
 	publicKey  *rsa.PublicKey
 }
 
-func NewAuthService(userRepo repository.UserRepository, tokenTTL time.Duration, privKeyPath, pubKeyPath string) (AuthService, error) {
+func NewAuthService(
+	userRepo repository.UserRepository,
+	tokenTTL time.Duration,
+	privKeyPath, pubKeyPath string,
+) (AuthService, error) {
 	privBytes, err := os.ReadFile(privKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("could not read private key file: %w", err)
@@ -83,7 +87,7 @@ func (s *authService) SignIn(ctx context.Context, input SignInInput) (Tokens, er
 		return Tokens{}, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password)); err != nil {
+	if pwdErr := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password)); pwdErr != nil {
 		return Tokens{}, fmt.Errorf("invalid password")
 	}
 

@@ -52,7 +52,7 @@ func (s *AuthHandlerSuite) SetupSuite() {
 	}
 
 	var err error
-	s.pool, err = postgresql.NewClient(context.Background(), 3, cfg)
+	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg)
 	s.Require().NoError(err)
 }
 
@@ -63,8 +63,8 @@ func (s *AuthHandlerSuite) TearDownSuite() {
 }
 
 func (s *AuthHandlerSuite) SetupTest() {
-	s.privKeyPath = "../../../../certs/private.pem"
-	s.pubKeyPath = "../../../../certs/public.pem"
+	s.privKeyPath = "../../../../certs/local/private.pem"
+	s.pubKeyPath = "../../../../certs/local/public.pem"
 
 	repo := postgres.NewUserRepository(s.pool)
 
@@ -87,8 +87,10 @@ func (s *AuthHandlerSuite) TestSignUp() {
 		expectedResponseBody string
 	}{
 		{
-			name:                 "OK",
-			inputBody:            `{"username": "testhttp_` + strconv.FormatInt(time.Now().UnixNano(), 10) + `", "email": "testhttp_` + strconv.FormatInt(time.Now().UnixNano(), 10) + `@test.com", "password": "password"}`,
+			name: "OK",
+			inputBody: `{"username": "testhttp_` + strconv.FormatInt(time.Now().UnixNano(), 10) +
+				`", "email": "testhttp_` + strconv.FormatInt(time.Now().UnixNano(), 10) +
+				`@test.com", "password": "password"}`,
 			expectedStatusCode:   http.StatusCreated,
 			expectedResponseBody: `{"id":`,
 		},

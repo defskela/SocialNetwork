@@ -2,9 +2,9 @@ name: Go
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "**" ]
+    branches: [ "main" ]
 
 jobs:
 
@@ -40,9 +40,9 @@ jobs:
 
     - name: Generate Certs
       run: |
-        mkdir -p certs
-        openssl genrsa -out certs/private.pem 2048
-        openssl rsa -in certs/private.pem -pubout -out certs/public.pem
+        mkdir -p certs/local
+        openssl genrsa -out certs/local/private.pem 2048
+        openssl rsa -in certs/local/private.pem -pubout -out certs/local/public.pem
 
     - name: Install Migrate
       run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
