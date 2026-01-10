@@ -32,7 +32,7 @@ type AuthIntegrationSuite struct {
 }
 
 func (s *AuthIntegrationSuite) SetupSuite() {
-	cfg := config.MustLoadPath("../../configs/test.yaml")
+	cfg := config.MustLoadPath("../../configs/local.yaml")
 
 	var err error
 	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg.Postgres)

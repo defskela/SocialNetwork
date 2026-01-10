@@ -29,6 +29,11 @@ restart: swagger
 
 check: fmt lint test
 
+push:
+	git push origin HEAD
+
+pushf:
+	git push -f origin HEAD
 
 switch-branch:
 	@if [ -z "$(NAME)" ]; then echo "Usage: make switch-branch NAME=<new_branch_name>"; exit 1; fi
