@@ -28,8 +28,10 @@ swagger:
 docker-up:
 	docker compose up -d
 
-restart:
+restart: swagger
 	docker compose up -d --build
+
+check: fmt lint test
 
 docker-down:
 	docker compose down

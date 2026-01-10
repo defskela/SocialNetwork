@@ -22,6 +22,9 @@ import (
 
 // @host localhost:8080
 // @BasePath /api/v1
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main() {
 	if err := run(); err != nil {

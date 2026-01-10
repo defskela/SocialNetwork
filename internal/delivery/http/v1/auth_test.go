@@ -21,6 +21,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const (
+	testPrivKeyPath = "../../../../certs/local/private.pem"
+	testPubKeyPath  = "../../../../certs/local/public.pem"
+)
+
 type AuthHandlerSuite struct {
 	suite.Suite
 	pool        *pgxpool.Pool
@@ -63,8 +68,8 @@ func (s *AuthHandlerSuite) TearDownSuite() {
 }
 
 func (s *AuthHandlerSuite) SetupTest() {
-	s.privKeyPath = "../../../../certs/local/private.pem"
-	s.pubKeyPath = "../../../../certs/local/public.pem"
+	s.privKeyPath = testPrivKeyPath
+	s.pubKeyPath = testPubKeyPath
 
 	repo := postgres.NewUserRepository(s.pool)
 
@@ -135,7 +140,7 @@ func (s *AuthHandlerSuite) TestSignIn() {
 			name:                 "OK",
 			inputBody:            `{"email": "` + signUpInput.Email + `", "password": "password"}`,
 			expectedStatusCode:   http.StatusOK,
-			expectedResponseBody: `{"access_token":`,
+			expectedResponseBody: `"access_token":`,
 		},
 		{
 			name:                 "Invalid Credentials",

@@ -47,7 +47,7 @@ func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 
 func (r *userRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	q := `
-		SELECT id, username, email, password_hash, created_at, updated_at
+		SELECT id, username, email, password_hash, bio, birthday, created_at, updated_at
 		FROM social.users
 		WHERE id = $1
 	`
@@ -58,6 +58,8 @@ func (r *userRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Use
 		&user.Username,
 		&user.Email,
 		&user.PasswordHash,
+		&user.Bio,
+		&user.Birthday,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -73,7 +75,7 @@ func (r *userRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Use
 
 func (r *userRepository) GetByEmail(ctx context.Context, email string) (*entity.User, error) {
 	q := `
-		SELECT id, username, email, password_hash, created_at, updated_at
+		SELECT id, username, email, password_hash, bio, birthday, created_at, updated_at
 		FROM social.users
 		WHERE email = $1
 	`
@@ -84,6 +86,8 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*entity.
 		&user.Username,
 		&user.Email,
 		&user.PasswordHash,
+		&user.Bio,
+		&user.Birthday,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -95,4 +99,27 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*entity.
 	}
 
 	return &user, nil
+}
+
+func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
+	q := `
+		UPDATE social.users
+		SET username = $1, email = $2, bio = $3, birthday = $4, updated_at = CURRENT_TIMESTAMP
+		WHERE id = $5
+		RETURNING updated_at
+	`
+
+	err := r.client.QueryRow(ctx, q,
+		user.Username,
+		user.Email,
+		user.Bio,
+		user.Birthday,
+		user.ID,
+	).Scan(&user.UpdatedAt)
+
+	if err != nil {
+		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
 }

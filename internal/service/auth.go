@@ -114,3 +114,23 @@ func (s *authService) SignIn(ctx context.Context, input SignInInput) (Tokens, er
 		RefreshToken: hex.EncodeToString(refreshToken),
 	}, nil
 }
+
+func (s *authService) ParseToken(accessToken string) (uuid.UUID, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &AuthClaim{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return s.publicKey, nil
+	})
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	claims, ok := token.Claims.(*AuthClaim)
+	if !ok || !token.Valid {
+		return uuid.Nil, fmt.Errorf("invalid token claims")
+	}
+
+	return claims.UserID, nil
+}
