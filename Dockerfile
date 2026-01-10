@@ -16,6 +16,9 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /app/social-network .
+COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/configs ./configs
+COPY --from=builder /app/certs ./certs
 
 EXPOSE 8080
 

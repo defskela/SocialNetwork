@@ -13,6 +13,7 @@ import (
 	"social-network/internal/repository/postgres"
 	"social-network/internal/service"
 	"social-network/pkg/client/postgresql"
+	"social-network/pkg/migrator"
 )
 
 // @title Social Network API
@@ -34,6 +35,8 @@ func run() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	migrator.MustRun(cfg.Postgres, "migrations")
 
 	pgClient, err := postgresql.NewClient(ctx, 3, cfg.Postgres)
 	if err != nil {
@@ -67,7 +70,7 @@ func run() error {
 	fmt.Println("SocialNetwork service shutting down")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		return fmt.Errorf("error occured on server shutting down: %w", err)
+		return fmt.Errorf("error occurred on server shutting down: %w", err)
 	}
 
 	return nil
