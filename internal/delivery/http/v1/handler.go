@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"social-network/internal/service"
+	"github.com/defskela/SocialNetwork/internal/service"
 
 	"github.com/go-chi/chi/v5"
 )

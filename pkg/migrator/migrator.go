@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"social-network/internal/config"
+	"github.com/defskela/SocialNetwork/internal/config"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

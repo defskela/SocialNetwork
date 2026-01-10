@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"social-network/internal/entity"
-	"social-network/internal/repository"
+	"github.com/defskela/SocialNetwork/internal/entity"
+	"github.com/defskela/SocialNetwork/internal/repository"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"

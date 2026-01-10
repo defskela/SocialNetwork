@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"social-network/internal/config"
-	"social-network/internal/repository/postgres"
-	"social-network/internal/service"
-	"social-network/pkg/client/postgresql"
+	"github.com/defskela/SocialNetwork/internal/config"
+	"github.com/defskela/SocialNetwork/internal/repository/postgres"
+	"github.com/defskela/SocialNetwork/internal/service"
+	"github.com/defskela/SocialNetwork/pkg/client/postgresql"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"

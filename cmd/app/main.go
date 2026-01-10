@@ -7,13 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"social-network/internal/config"
-	"social-network/internal/delivery/http"
-	"social-network/internal/repository"
-	"social-network/internal/repository/postgres"
-	"social-network/internal/service"
-	"social-network/pkg/client/postgresql"
-	"social-network/pkg/migrator"
+	"github.com/defskela/SocialNetwork/internal/config"
+	"github.com/defskela/SocialNetwork/internal/delivery/http"
+	"github.com/defskela/SocialNetwork/internal/repository"
+	"github.com/defskela/SocialNetwork/internal/repository/postgres"
+	"github.com/defskela/SocialNetwork/internal/service"
+	"github.com/defskela/SocialNetwork/pkg/client/postgresql"
+	"github.com/defskela/SocialNetwork/pkg/migrator"
 )
 
 // @title Social Network API
