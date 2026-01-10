@@ -44,6 +44,12 @@ jobs:
         openssl genrsa -out certs/private.pem 2048
         openssl rsa -in certs/private.pem -pubout -out certs/public.pem
 
+    - name: Install Migrate
+      run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+    - name: Run Migrations
+      run: migrate -path ./migrations -database "postgres://user:password@localhost:5432/social_network?sslmode=disable" up
+
     - name: Generate Docs
       run: swag init -g cmd/app/main.go
 
