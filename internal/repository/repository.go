@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"social-network/internal/entity"
+	"github.com/defskela/SocialNetwork/internal/entity"
 
 	"github.com/google/uuid"
 )

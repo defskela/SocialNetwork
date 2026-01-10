@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"social-network/internal/config"
+	"github.com/defskela/SocialNetwork/internal/config"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"

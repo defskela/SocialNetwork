@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"social-network/internal/repository"
+	"github.com/defskela/SocialNetwork/internal/repository"
 
 	"github.com/google/uuid"
 )

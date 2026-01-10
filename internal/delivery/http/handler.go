@@ -9,10 +9,10 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	_ "social-network/docs"
-	"social-network/internal/config"
-	v1 "social-network/internal/delivery/http/v1"
-	"social-network/internal/service"
+	_ "github.com/defskela/SocialNetwork/docs"
+	"github.com/defskela/SocialNetwork/internal/config"
+	v1 "github.com/defskela/SocialNetwork/internal/delivery/http/v1"
+	"github.com/defskela/SocialNetwork/internal/service"
 )
 
 type Server struct {

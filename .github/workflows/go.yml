@@ -64,4 +64,9 @@ jobs:
         POSTGRES_PASSWORD: password
         POSTGRES_DB: social_network
         POSTGRES_SSL_MODE: disable
-      run: go test -v -race -cover ./...
+      run: go test -v -race -coverprofile=coverage.out ./...
+
+    - name: Send coverage
+      uses: shogo82148/actions-goveralls@v1
+      with:
+        path-to-profile: coverage.out
