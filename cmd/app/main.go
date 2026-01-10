@@ -70,7 +70,7 @@ func run() error {
 	fmt.Println("SocialNetwork service shutting down")
 
 	if err := srv.Shutdown(ctx); err != nil {
-		return fmt.Errorf("error occured on server shutting down: %w", err)
+		return fmt.Errorf("error occurred on server shutting down: %w", err)
 	}
 
 	return nil
