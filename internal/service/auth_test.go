@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"os"
-	"strconv"
 	"testing"
 	"time"
 
@@ -13,7 +11,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -26,27 +23,10 @@ type AuthServiceVerifySuite struct {
 }
 
 func (s *AuthServiceVerifySuite) SetupSuite() {
-	_ = godotenv.Load("../../.env")
-
-	requiredEnv := []string{"POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"}
-	for _, env := range requiredEnv {
-		if os.Getenv(env) == "" {
-			s.T().Skipf("Skipping test: %s is not set", env)
-		}
-	}
-
-	port, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
-	cfg := config.Postgres{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     port,
-		User:     os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   os.Getenv("POSTGRES_DB"),
-		SSLMode:  "disable",
-	}
+	cfg := config.MustLoadPath("../../configs/local.yaml")
 
 	var err error
-	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg)
+	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg.Postgres)
 	s.Require().NoError(err)
 }
 

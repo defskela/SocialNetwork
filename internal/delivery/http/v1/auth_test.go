@@ -5,7 +5,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -17,13 +16,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
 const (
 	testPrivKeyPath = "../../../../certs/local/private.pem"
 	testPubKeyPath  = "../../../../certs/local/public.pem"
+	testDBHost      = "localhost"
 )
 
 type AuthHandlerSuite struct {
@@ -37,27 +36,11 @@ type AuthHandlerSuite struct {
 }
 
 func (s *AuthHandlerSuite) SetupSuite() {
-	_ = godotenv.Load("../../../../.env")
-
-	requiredEnv := []string{"POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"}
-	for _, env := range requiredEnv {
-		if os.Getenv(env) == "" {
-			s.T().Skipf("Skipping test: %s is not set", env)
-		}
-	}
-
-	port, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
-	cfg := config.Postgres{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     port,
-		User:     os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   os.Getenv("POSTGRES_DB"),
-		SSLMode:  "disable",
-	}
+	cfg := config.MustLoadPath("../../../../configs/local.yaml")
+	cfg.Postgres.Host = testDBHost
 
 	var err error
-	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg)
+	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg.Postgres)
 	s.Require().NoError(err)
 }
 
@@ -85,6 +68,16 @@ func (s *AuthHandlerSuite) SetupTest() {
 }
 
 func (s *AuthHandlerSuite) TestSignUp() {
+	uniqueID := strconv.FormatInt(time.Now().UnixNano(), 10)
+	dupEmail := "dup_" + uniqueID + "@test.com"
+	dupUsername := "dupUser_" + uniqueID
+	_, err := s.authService.SignUp(context.Background(), service.SignUpInput{
+		Username: dupUsername,
+		Email:    dupEmail,
+		Password: "password",
+	})
+	s.Require().NoError(err)
+
 	tests := []struct {
 		name                 string
 		inputBody            string
@@ -104,6 +97,20 @@ func (s *AuthHandlerSuite) TestSignUp() {
 			inputBody:            `{"username": "test"`,
 			expectedStatusCode:   http.StatusBadRequest,
 			expectedResponseBody: "unexpected EOF",
+		},
+		{
+			name:                 "Validation Error",
+			inputBody:            `{"username": "us", "email": "bad-email", "password": "short"}`,
+			expectedStatusCode:   http.StatusBadRequest,
+			expectedResponseBody: "Field validation for",
+		},
+		{
+			name: "Duplicate Email",
+			inputBody: `{"username": "dupUser2_` + uniqueID +
+				`", "email": "` + dupEmail +
+				`", "password": "password"}`,
+			expectedStatusCode:   http.StatusInternalServerError,
+			expectedResponseBody: "user already exists",
 		},
 	}
 
@@ -147,6 +154,18 @@ func (s *AuthHandlerSuite) TestSignIn() {
 			inputBody:            `{"email": "` + signUpInput.Email + `", "password": "wrongpassword"}`,
 			expectedStatusCode:   http.StatusInternalServerError,
 			expectedResponseBody: "invalid password",
+		},
+		{
+			name:                 "Validation Error",
+			inputBody:            `{"email": "not-email", "password": ""}`,
+			expectedStatusCode:   http.StatusBadRequest,
+			expectedResponseBody: "Field validation for",
+		},
+		{
+			name:                 "Invalid JSON",
+			inputBody:            `{"email": "test"`,
+			expectedStatusCode:   http.StatusBadRequest,
+			expectedResponseBody: "unexpected EOF",
 		},
 	}
 

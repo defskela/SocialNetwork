@@ -7,9 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
-	"runtime"
 	"strconv"
 	"testing"
 	"time"
@@ -22,7 +19,6 @@ import (
 	"github.com/defskela/SocialNetwork/pkg/client/postgresql"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -36,34 +32,10 @@ type AuthIntegrationSuite struct {
 }
 
 func (s *AuthIntegrationSuite) SetupSuite() {
-	_, b, _, ok := runtime.Caller(0)
-	if !ok {
-		s.T().Fatal("runtime.Caller failed")
-	}
-	basepath := filepath.Dir(b)
-	err := godotenv.Load(filepath.Join(basepath, "..", "..", ".env"))
-	if err != nil {
-		s.T().Logf(".env file not found, using system environment")
-	}
+	cfg := config.MustLoadPath("../../configs/local.yaml")
 
-	requiredEnv := []string{"POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB"}
-	for _, env := range requiredEnv {
-		if os.Getenv(env) == "" {
-			s.T().Skipf("Skipping test: %s is not set", env)
-		}
-	}
-
-	port, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
-	cfg := config.Postgres{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     port,
-		User:     os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   os.Getenv("POSTGRES_DB"),
-		SSLMode:  "disable",
-	}
-
-	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg)
+	var err error
+	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg.Postgres)
 	s.Require().NoError(err)
 }
 
@@ -127,7 +99,6 @@ func (s *AuthIntegrationSuite) POST(path string, body interface{}) (statusCode i
 }
 
 func (s *AuthIntegrationSuite) TestRegisterAndLogin() {
-	// 1. REGISTER
 	username := "integration_" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	email := username + "@test.com"
 	password := "password123"
@@ -143,7 +114,6 @@ func (s *AuthIntegrationSuite) TestRegisterAndLogin() {
 	s.Equal(http.StatusCreated, statusCode)
 	s.Contains(body, `"id":`)
 
-	// 2. LOGIN
 	loginInput := map[string]string{
 		"email":    email,
 		"password": password,

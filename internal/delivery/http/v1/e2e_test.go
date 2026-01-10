@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"strconv"
 	"testing"
 	"time"
 
@@ -16,7 +14,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -30,34 +27,17 @@ type E2ESuite struct {
 }
 
 func (s *E2ESuite) SetupSuite() {
-	_ = godotenv.Load("../../../../.env")
-
-	port, _ := os.LookupEnv("POSTGRES_PORT")
-	if port == "" {
-		s.T().Log("POSTGRES_PORT not set, assuming CI or local env already setup")
-	}
 }
 
 func (s *E2ESuite) SetupTest() {
-	privKeyPath := "../../../../certs/local/private.pem"
-	pubKeyPath := "../../../../certs/local/public.pem"
+	cfg := config.MustLoadPath("../../../../configs/local.yaml")
+	cfg.Postgres.Host = testDBHost
 
-	cfg := config.Postgres{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     5432,
-		User:     os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   os.Getenv("POSTGRES_DB"),
-		SSLMode:  "disable",
-	}
-	if p := os.Getenv("POSTGRES_PORT"); p != "" {
-		if val, err := strconv.Atoi(p); err == nil {
-			cfg.Port = val
-		}
-	}
+	privKeyPath := "../../../../" + cfg.JWT.PrivateKeyPath
+	pubKeyPath := "../../../../" + cfg.JWT.PublicKeyPath
 
 	ctx := context.Background()
-	pool, err := postgresql.NewClient(ctx, 3, &cfg)
+	pool, err := postgresql.NewClient(ctx, 3, &cfg.Postgres)
 	if err != nil {
 		s.T().Skipf("Could not connect to database: %v", err)
 	}
@@ -93,7 +73,6 @@ func (s *E2ESuite) TestFullFlow_RegisterLoginProfile() {
 	s.Require().NoError(err)
 	s.Require().NotEmpty(id)
 
-	// 2. Login
 	tokens, err := s.authService.SignIn(context.Background(), service.SignInInput{
 		Email:    email,
 		Password: password,
