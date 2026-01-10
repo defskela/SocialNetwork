@@ -50,7 +50,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"id": id,
 	})
 }
@@ -78,5 +78,5 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(tokens)
+	_ = json.NewEncoder(w).Encode(tokens)
 }

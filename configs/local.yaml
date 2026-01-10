@@ -6,6 +6,13 @@ http_server:
   idle_timeout: 60s
 
 postgres:
-  host: "localhost"
+  host: "postgres"
   port: 5432
+  user: "user"
+  password: "password"
+  db_name: "social_network"
   ssl_mode: "disable"
+
+jwt:
+  private_key_path: "certs/local/private.pem"
+  public_key_path: "certs/local/public.pem"

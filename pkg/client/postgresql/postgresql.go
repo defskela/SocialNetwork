@@ -20,7 +20,7 @@ type Client interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
-func NewClient(ctx context.Context, maxAttempts int, sc config.Postgres) (*pgxpool.Pool, error) {
+func NewClient(ctx context.Context, maxAttempts int, sc *config.Postgres) (*pgxpool.Pool, error) {
 	var pool *pgxpool.Pool
 	var err error
 
@@ -28,15 +28,15 @@ func NewClient(ctx context.Context, maxAttempts int, sc config.Postgres) (*pgxpo
 		sc.User, sc.Password, sc.Host, sc.Port, sc.DBName, sc.SSLMode)
 
 	err = DoWithTries(func() error {
-		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		tCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 
-		pool, err = pgxpool.New(ctx, dsn)
+		pool, err = pgxpool.New(tCtx, dsn)
 		if err != nil {
 			return err
 		}
 
-		return pool.Ping(ctx)
+		return pool.Ping(tCtx)
 	}, maxAttempts, 5*time.Second)
 
 	if err != nil {

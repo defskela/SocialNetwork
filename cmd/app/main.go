@@ -36,9 +36,9 @@ func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	migrator.MustRun(cfg.Postgres, "migrations")
+	migrator.MustRun(&cfg.Postgres, "migrations")
 
-	pgClient, err := postgresql.NewClient(ctx, 3, cfg.Postgres)
+	pgClient, err := postgresql.NewClient(ctx, 3, &cfg.Postgres)
 	if err != nil {
 		return fmt.Errorf("failed to create postgres client: %w", err)
 	}

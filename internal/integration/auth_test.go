@@ -36,9 +36,12 @@ type AuthIntegrationSuite struct {
 }
 
 func (s *AuthIntegrationSuite) SetupSuite() {
-	_, b, _, _ := runtime.Caller(0)
+	_, b, _, ok := runtime.Caller(0)
+	if !ok {
+		s.T().Fatal("runtime.Caller failed")
+	}
 	basepath := filepath.Dir(b)
-	err := godotenv.Load(filepath.Join(basepath, "../../.env"))
+	err := godotenv.Load(filepath.Join(basepath, "..", "..", ".env"))
 	if err != nil {
 		s.T().Logf(".env file not found, using system environment")
 	}
@@ -60,7 +63,7 @@ func (s *AuthIntegrationSuite) SetupSuite() {
 		SSLMode:  "disable",
 	}
 
-	s.pool, err = postgresql.NewClient(context.Background(), 3, cfg)
+	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg)
 	s.Require().NoError(err)
 }
 
@@ -71,8 +74,8 @@ func (s *AuthIntegrationSuite) TearDownSuite() {
 }
 
 func (s *AuthIntegrationSuite) SetupTest() {
-	s.privKeyPath = "../../certs/private.pem"
-	s.pubKeyPath = "../../certs/public.pem"
+	s.privKeyPath = "../../certs/local/private.pem"
+	s.pubKeyPath = "../../certs/local/public.pem"
 
 	repo := repository.NewRepository(postgres.NewUserRepository(s.pool))
 
@@ -101,7 +104,7 @@ func (s *AuthIntegrationSuite) TearDownTest() {
 	}
 }
 
-func (s *AuthIntegrationSuite) POST(path string, body interface{}) (*http.Response, string) {
+func (s *AuthIntegrationSuite) POST(path string, body interface{}) (statusCode int, responseBody string) {
 	var bodyReader io.Reader
 	if body != nil {
 		jsonBody, err := json.Marshal(body)
@@ -109,18 +112,18 @@ func (s *AuthIntegrationSuite) POST(path string, body interface{}) (*http.Respon
 		bodyReader = bytes.NewBuffer(jsonBody)
 	}
 
-	req, err := http.NewRequest("POST", s.server.URL+path, bodyReader)
+	req, err := http.NewRequestWithContext(context.Background(), "POST", s.server.URL+path, bodyReader)
 	s.Require().NoError(err)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.client.Do(req)
 	s.Require().NoError(err)
+	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	s.Require().NoError(err)
-	resp.Body.Close()
 
-	return resp, string(respBody)
+	return resp.StatusCode, string(respBody)
 }
 
 func (s *AuthIntegrationSuite) TestRegisterAndLogin() {
@@ -135,9 +138,9 @@ func (s *AuthIntegrationSuite) TestRegisterAndLogin() {
 		"password": password,
 	}
 
-	resp, body := s.POST("/api/v1/auth/register", registerInput)
+	statusCode, body := s.POST("/api/v1/auth/register", registerInput)
 
-	s.Equal(http.StatusCreated, resp.StatusCode)
+	s.Equal(http.StatusCreated, statusCode)
 	s.Contains(body, `"id":`)
 
 	// 2. LOGIN
@@ -146,9 +149,9 @@ func (s *AuthIntegrationSuite) TestRegisterAndLogin() {
 		"password": password,
 	}
 
-	resp, body = s.POST("/api/v1/auth/login", loginInput)
+	statusCode, body = s.POST("/api/v1/auth/login", loginInput)
 
-	s.Equal(http.StatusOK, resp.StatusCode)
+	s.Equal(http.StatusOK, statusCode)
 	s.Contains(body, `"access_token":`)
 }
 

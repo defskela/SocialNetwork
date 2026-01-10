@@ -46,7 +46,7 @@ func (s *AuthServiceVerifySuite) SetupSuite() {
 	}
 
 	var err error
-	s.pool, err = postgresql.NewClient(context.Background(), 3, cfg)
+	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg)
 	s.Require().NoError(err)
 }
 
@@ -57,8 +57,8 @@ func (s *AuthServiceVerifySuite) TearDownSuite() {
 }
 
 func (s *AuthServiceVerifySuite) SetupTest() {
-	s.privKeyPath = "../../certs/private.pem"
-	s.pubKeyPath = "../../certs/public.pem"
+	s.privKeyPath = "../../certs/local/private.pem"
+	s.pubKeyPath = "../../certs/local/public.pem"
 
 	authRepo := postgres.NewUserRepository(s.pool)
 	var err error

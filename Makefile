@@ -16,7 +16,11 @@ test:
 	go test -v -race -cover ./...
 
 lint:
-	golangci-lint run
+	$(shell go env GOPATH)/bin/golangci-lint run
+
+fmt:
+	go fmt ./...
+	$(shell go env GOPATH)/bin/goimports -w -local github.com/defskela/SocialNetwork .
 
 swagger:
 	$(shell go env GOPATH)/bin/swag init -g $(CMD_PATH)
