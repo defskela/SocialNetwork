@@ -22,8 +22,11 @@ type AuthServiceVerifySuite struct {
 	pubKeyPath  string
 }
 
+const testDBHost = "localhost"
+
 func (s *AuthServiceVerifySuite) SetupSuite() {
 	cfg := config.MustLoadPath("../../configs/local.yaml")
+	cfg.Postgres.Host = testDBHost
 
 	var err error
 	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg.Postgres)

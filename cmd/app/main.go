@@ -49,7 +49,8 @@ func run() error {
 	defer pgClient.Close()
 
 	userRepo := postgres.NewUserRepository(pgClient)
-	repos := repository.NewRepository(userRepo)
+	postRepo := postgres.NewPostRepository(pgClient)
+	repos := repository.NewRepository(userRepo, postRepo)
 	services, err := service.NewService(repos, cfg.JWT.PrivateKeyPath, cfg.JWT.PublicKeyPath)
 	if err != nil {
 		return fmt.Errorf("failed to create services: %w", err)

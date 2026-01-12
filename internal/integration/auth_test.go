@@ -33,6 +33,7 @@ type AuthIntegrationSuite struct {
 
 func (s *AuthIntegrationSuite) SetupSuite() {
 	cfg := config.MustLoadPath("../../configs/local.yaml")
+	cfg.Postgres.Host = "localhost"
 
 	var err error
 	s.pool, err = postgresql.NewClient(context.Background(), 3, &cfg.Postgres)
@@ -49,7 +50,9 @@ func (s *AuthIntegrationSuite) SetupTest() {
 	s.privKeyPath = "../../certs/local/private.pem"
 	s.pubKeyPath = "../../certs/local/public.pem"
 
-	repo := repository.NewRepository(postgres.NewUserRepository(s.pool))
+	userRepo := postgres.NewUserRepository(s.pool)
+	postRepo := postgres.NewPostRepository(s.pool)
+	repo := repository.NewRepository(userRepo, postRepo)
 
 	authService, err := service.NewAuthService(repo.User, time.Hour, s.privKeyPath, s.pubKeyPath)
 	s.Require().NoError(err)
