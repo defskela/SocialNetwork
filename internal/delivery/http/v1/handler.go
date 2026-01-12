@@ -35,6 +35,14 @@ func (h *Handler) Init(api *chi.Mux) {
 		r.Get("/me", h.getProfile)
 		r.Patch("/me", h.updateProfile)
 	})
+
+	api.Route("/posts", func(r chi.Router) {
+		r.Use(h.userIdentity)
+		r.Post("/", h.createPost)
+		r.Get("/{id}", h.getPost)
+		r.Patch("/{id}", h.updatePost)
+		r.Delete("/{id}", h.deletePost)
+	})
 }
 
 // @Summary Register a new user

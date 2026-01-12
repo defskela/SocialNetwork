@@ -44,9 +44,25 @@ type UpdateUserInput struct {
 	Birthday *string `json:"birthday" validate:"omitempty,datetime=2006-01-02" example:"2006-01-02"`
 }
 
+type CreatePostInput struct {
+	Content string `json:"content" validate:"required,min=1,max=2000" example:"Hello, world!"`
+}
+
+type UpdatePostInput struct {
+	Content string `json:"content" validate:"required,min=1,max=2000" example:"Updated content"`
+}
+
+type PostService interface {
+	Create(ctx context.Context, userID uuid.UUID, input CreatePostInput) (uuid.UUID, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*entity.Post, error)
+	Update(ctx context.Context, userID uuid.UUID, postID uuid.UUID, input UpdatePostInput) (*entity.Post, error)
+	Delete(ctx context.Context, userID uuid.UUID, postID uuid.UUID) error
+}
+
 type Service struct {
 	Auth AuthService
 	User UserService
+	Post PostService
 }
 
 func NewService(repos *repository.Repository, privKeyPath, pubKeyPath string) (*Service, error) {
@@ -56,9 +72,11 @@ func NewService(repos *repository.Repository, privKeyPath, pubKeyPath string) (*
 	}
 
 	userService := NewUserService(repos.User)
+	postService := NewPostService(repos.Post)
 
 	return &Service{
 		Auth: authService,
 		User: userService,
+		Post: postService,
 	}, nil
 }
