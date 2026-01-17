@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -22,10 +23,17 @@ type AuthServiceVerifySuite struct {
 	pubKeyPath  string
 }
 
-const testDBHost = "localhost"
+const (
+	testDBHost  = "localhost"
+	privKeyPath = "../../certs/local/private.pem"
+	pubKeyPath  = "../../certs/local/public.pem"
+)
 
 func (s *AuthServiceVerifySuite) SetupSuite() {
-	cfg := config.MustLoadPath("../../configs/local.yaml")
+	if err := godotenv.Load("../../.env"); err != nil {
+		s.T().Log("Error loading .env file")
+	}
+	cfg := config.MustLoad()
 	cfg.Postgres.Host = testDBHost
 
 	var err error
@@ -40,8 +48,8 @@ func (s *AuthServiceVerifySuite) TearDownSuite() {
 }
 
 func (s *AuthServiceVerifySuite) SetupTest() {
-	s.privKeyPath = "../../certs/local/private.pem"
-	s.pubKeyPath = "../../certs/local/public.pem"
+	s.privKeyPath = privKeyPath
+	s.pubKeyPath = pubKeyPath
 
 	authRepo := postgres.NewUserRepository(s.pool)
 	var err error

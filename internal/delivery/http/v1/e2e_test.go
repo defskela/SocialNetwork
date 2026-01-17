@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -33,7 +34,10 @@ func (s *E2ESuite) SetupSuite() {
 }
 
 func (s *E2ESuite) SetupTest() {
-	cfg := config.MustLoadPath("../../../../configs/local.yaml")
+	if err := godotenv.Load("../../../../.env"); err != nil {
+		s.T().Log("Error loading .env file")
+	}
+	cfg := config.MustLoad()
 	cfg.Postgres.Host = testDBHost
 
 	privKeyPath := "../../../../" + cfg.JWT.PrivateKeyPath

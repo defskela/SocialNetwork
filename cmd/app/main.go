@@ -50,7 +50,8 @@ func run() error {
 
 	userRepo := postgres.NewUserRepository(pgClient)
 	postRepo := postgres.NewPostRepository(pgClient)
-	repos := repository.NewRepository(userRepo, postRepo)
+	followerRepo := postgres.NewFollowerRepository(pgClient)
+	repos := repository.NewRepository(userRepo, postRepo, followerRepo)
 	services, err := service.NewService(repos, cfg.JWT.PrivateKeyPath, cfg.JWT.PublicKeyPath)
 	if err != nil {
 		return fmt.Errorf("failed to create services: %w", err)

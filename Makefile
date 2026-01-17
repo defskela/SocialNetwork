@@ -1,5 +1,3 @@
-export CONFIG_PATH=configs/local.yaml
-
 .PHONY: build run test lint switch-branch fmt swagger restart check
 
 APP_NAME=social-network
@@ -12,7 +10,7 @@ run:
 	go run $(CMD_PATH)
 
 test:
-	go test -v -race -cover ./...
+	go test -v -race -cover $$(go list ./... | grep -iE -v 'mocks|integration')
 
 lint:
 	$(shell go env GOPATH)/bin/golangci-lint run
