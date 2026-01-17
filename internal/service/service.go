@@ -59,10 +59,18 @@ type PostService interface {
 	Delete(ctx context.Context, userID uuid.UUID, postID uuid.UUID) error
 }
 
+type FollowerService interface {
+	Follow(ctx context.Context, followerID, followeeID uuid.UUID) error
+	Unfollow(ctx context.Context, followerID, followeeID uuid.UUID) error
+	GetFollowers(ctx context.Context, userID uuid.UUID) ([]entity.User, error)
+	GetFollowing(ctx context.Context, userID uuid.UUID) ([]entity.User, error)
+}
+
 type Service struct {
-	Auth AuthService
-	User UserService
-	Post PostService
+	Auth     AuthService
+	User     UserService
+	Post     PostService
+	Follower FollowerService
 }
 
 func NewService(repos *repository.Repository, privKeyPath, pubKeyPath string) (*Service, error) {
@@ -73,10 +81,12 @@ func NewService(repos *repository.Repository, privKeyPath, pubKeyPath string) (*
 
 	userService := NewUserService(repos.User)
 	postService := NewPostService(repos.Post)
+	followerService := NewFollowerService(repos.Follower)
 
 	return &Service{
-		Auth: authService,
-		User: userService,
-		Post: postService,
+		Auth:     authService,
+		User:     userService,
+		Post:     postService,
+		Follower: followerService,
 	}, nil
 }

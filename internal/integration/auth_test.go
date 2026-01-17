@@ -19,6 +19,7 @@ import (
 	"github.com/defskela/SocialNetwork/pkg/client/postgresql"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -32,7 +33,10 @@ type AuthIntegrationSuite struct {
 }
 
 func (s *AuthIntegrationSuite) SetupSuite() {
-	cfg := config.MustLoadPath("../../configs/local.yaml")
+	if err := godotenv.Load("../../.env"); err != nil {
+		s.T().Log("Error loading .env file")
+	}
+	cfg := config.MustLoad()
 	cfg.Postgres.Host = "localhost"
 
 	var err error
@@ -52,7 +56,8 @@ func (s *AuthIntegrationSuite) SetupTest() {
 
 	userRepo := postgres.NewUserRepository(s.pool)
 	postRepo := postgres.NewPostRepository(s.pool)
-	repo := repository.NewRepository(userRepo, postRepo)
+	followerRepo := postgres.NewFollowerRepository(s.pool)
+	repo := repository.NewRepository(userRepo, postRepo, followerRepo)
 
 	authService, err := service.NewAuthService(repo.User, time.Hour, s.privKeyPath, s.pubKeyPath)
 	s.Require().NoError(err)

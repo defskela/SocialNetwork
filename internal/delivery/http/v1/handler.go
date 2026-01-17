@@ -34,6 +34,11 @@ func (h *Handler) Init(api *chi.Mux) {
 		r.Use(h.userIdentity)
 		r.Get("/me", h.getProfile)
 		r.Patch("/me", h.updateProfile)
+
+		r.Post("/{id}/follow", h.followUser)
+		r.Delete("/{id}/follow", h.unfollowUser)
+		r.Get("/{id}/followers", h.getFollowers)
+		r.Get("/{id}/following", h.getFollowing)
 	})
 
 	api.Route("/posts", func(r chi.Router) {

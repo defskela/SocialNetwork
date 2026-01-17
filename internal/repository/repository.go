@@ -22,14 +22,23 @@ type PostRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-type Repository struct {
-	User UserRepository
-	Post PostRepository
+type FollowerRepository interface {
+	Follow(ctx context.Context, followerID, followeeID uuid.UUID) error
+	Unfollow(ctx context.Context, followerID, followeeID uuid.UUID) error
+	GetFollowers(ctx context.Context, userID uuid.UUID) ([]entity.User, error)
+	GetFollowing(ctx context.Context, userID uuid.UUID) ([]entity.User, error)
 }
 
-func NewRepository(user UserRepository, post PostRepository) *Repository {
+type Repository struct {
+	User     UserRepository
+	Post     PostRepository
+	Follower FollowerRepository
+}
+
+func NewRepository(user UserRepository, post PostRepository, follower FollowerRepository) *Repository {
 	return &Repository{
-		User: user,
-		Post: post,
+		User:     user,
+		Post:     post,
+		Follower: follower,
 	}
 }

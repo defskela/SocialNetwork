@@ -6,13 +6,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/defskela/SocialNetwork/internal/config"
 )
 
 func TestNewClient(t *testing.T) {
-	cfg := config.MustLoadPath("../../../configs/local.yaml")
+	if err := godotenv.Load("../../../.env"); err != nil {
+		t.Log("Error loading .env file")
+	}
+	cfg := config.MustLoad()
 	cfg.Postgres.Host = "localhost"
 
 	ctx := context.Background()

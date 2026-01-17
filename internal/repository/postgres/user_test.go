@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/defskela/SocialNetwork/internal/config"
@@ -22,7 +23,10 @@ type UserRepoSuite struct {
 }
 
 func (s *UserRepoSuite) SetupSuite() {
-	cfg := config.MustLoadPath("../../../configs/local.yaml")
+	if err := godotenv.Load("../../../.env"); err != nil {
+		s.T().Log("Error loading .env file")
+	}
+	cfg := config.MustLoad()
 	cfg.Postgres.Host = "localhost"
 
 	var err error
